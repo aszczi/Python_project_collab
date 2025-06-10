@@ -1,16 +1,22 @@
-import datetime
-from time import strptime
+from datetime import datetime
+import os
+
 
 
 def addTask(tasks):
-    addName = input("Enter name of the task: ")
-    addPriority = int(input("Choose the priority for the task: \n 1: UrgentImportant\n 2: NotUrgentImportant \n 3: UrgentNotImportant\n  4: NotUrgentNotImportant"))
-    addStatus = int(input("Select task status: \n1: ToDo \n2: InProgress\n 3: Finished"))
-    addDeadline = input("Provide a deadline for completing the task (dd-mm-yyyy): ")
-    deadlineDate = strptime(addDeadline, "%d.%m.%Y")
-    timeLeft = deadlineDate - datetime.datetime.now()
-    addCategory = int(input("Select task category: "))
-    addDescription = input("Add description: ")
+    addName = input("Podaj nazwę zadania: ")
+    addPriority = int(input("Podaj priorytet zadania: \n 1: Ważne i Pilne \n 2: Ważne i niepilne \n 3: Pilne, nie tak ważne\n 4: Nie tak ważne i niepilne\n"))
+    addStatus = int(input("Select task status: \n 1: Do zrobienia \n 2: W trakcie\n 3: Ukończone\n"))
+    if(addStatus != 3):
+        addDeadline = input("Podaj termin wykonania zadania (dd.mm.yyyy): ")
+        deadlineDate = datetime.strptime(addDeadline, "%d.%m.%Y")
+        timeLeft = deadlineDate - datetime.now()
+    else:
+        addDeadline = datetime.now()
+        deadlineDate = datetime.now()
+        timeLeft = 0
+    addCategory = int(input("Podaj kategorię zadania: \n 1: Praca\n 2: Osobiste\n 3: etc\n"))
+    addDescription = input("Podaj opis zadania: ")
 
     newTask = {
         "name": addName,
@@ -23,31 +29,200 @@ def addTask(tasks):
     tasks.append(newTask)
     return tasks
 
+
 def deleteTask(tasks):
-    input()
+    if not tasks:
+        print("Brak zadań do usunięcia!")
+        return tasks
 
-def showTasks(tasks, priority, status, category):
+    print("\nLista zadań:")
+    for i, task in enumerate(tasks, 1):
+        print(f"{i}. {task['name']}")
 
-    for task in tasks:
-        task["priorityName"] = priority.get(task["priority"], "Unknown")
+    try:
+        task_num = int(input("\nPodaj numer zadania do usunięcia: ")) - 1
+        if 0 <= task_num < len(tasks):
+            del tasks[task_num]
+            saveTasks(tasks)
+            print("Zadanie zostało usunięte!")
+        else:
+            print("Nieprawidłowy numer zadania!")
+    except ValueError:
+        print("Proszę podać numer!")
 
-    for task in tasks:
-        task["statusName"] = status.get(task["status"], "Unknown")
+    return tasks
 
-    for task in tasks:
-        task["categoryName"] = category.get(task["category"], "Unknown")
 
-    for task in tasks:
-        task["description"] = task.get(task["description"], "Unknown")
-        
+def saveTasks(tasks):
+    with open('tasks.txt', 'w') as file:
+        for task in tasks:
+            line = f"{task['name']}|{task['priority']}|{task['status']}|{task['deadline']}|{task['category']}|{task['description']}\n"
+            file.write(line)
 
-    for task in tasks:
-        print(f'{task["name"]} - {task["priorityName"]} - {task["statusName"]} - {task["categoryName"]}')
+def loadTasks():
+    tasks = []
+    if os.path.exists('tasks.txt'):
+        with open('tasks.txt', 'r') as file:
+            for line in file:
+                if line.strip():  # Pomijanie pustych linii
+                    task_data = line.strip().split('|')
+                    task = {
+                        "name": task_data[0],
+                        "priority": int(task_data[1]),
+                        "status": int(task_data[2]),
+                        "deadline": task_data[3],
+                        "category": int(task_data[4]),
+                        "description": task_data[5],
+                    }
+                    tasks.append(task)
+    return tasks
+
+
+# def showTasks(tasks, priority, status, category):
+#
+#     for task in tasks:
+#         task["priorityName"] = priority.get(task["priority"], "Unknown")
+#
+#     for task in tasks:
+#         task["statusName"] = status.get(task["status"], "Unknown")
+#
+#     for task in tasks:
+#         task["categoryName"] = category.get(task["category"], "Unknown")
+#
+#
+#     for task in tasks:
+#         print(f'{task["name"]} - {task["priorityName"]} - {task["statusName"]} - {task["categoryName"]} ')
 
     # desciption =
 
+
+def showTasks(tasks, priority, status, category):
+    print("\nLista zadań:")
+    for i, task in enumerate(tasks, 1):
+        status_symbol = " ✓" if task['status'] == 3 else ""  # ✓ jeśli zadanie ukończone
+        print(f"{i}. {task['name']}{status_symbol} (Status: {status.get(task['status'], 'Unknown')}, Termin: {task['deadline']})")
+
+
+def editTask(tasks, priority, status, category):
+    if not tasks:
+        print("Brak zadań do edycji!")
+        return tasks
+
+    print("\nLista zadań:")
+    for i, task in enumerate(tasks, 1):
+        print(f"{i}. {task['name']}")
+
+    try:
+        taskNum = int(input("\nPodaj numer zadania do edycji: ")) - 1
+        if not (0 <= taskNum < len(tasks)):
+            print("Nieprawidłowy numer zadania!")
+            return tasks
+
+        task = tasks[taskNum]
+
+        print("\nEdycja zadania:")
+        print("1. Nazwa")
+        print("2. Priorytet")
+        print("3. Status")
+        print("4. Termin")
+        print("5. Kategoria")
+        print("6. Opis")
+        print("0. Anuluj")
+
+        choice = input("Wybierz co chcesz edytować (0-6): ")
+
+        if choice == "1":
+            task['name'] = input("Nowa nazwa: ")
+
+        elif choice == "2":
+            print("\nWybierz nowy priorytet:")
+            for key, value in priority.items():
+                print(f"{key}: {value}")
+            newPriority = int(input("Nowy priorytet: "))
+            if newPriority in priority:
+                task['priority'] = newPriority
+            else:
+                print("Nieprawidłowy priorytet! Edycja anulowana.")
+
+        elif choice == "3":
+            print("\nWybierz nowy status:")
+            for key, value in status.items():
+                print(f"{key}: {value}")
+            newStatus = int(input("Nowy status: "))
+            if newStatus in status:
+                task['status'] = newStatus
+            else:
+                print("Nieprawidłowy status! Edycja anulowana.")
+
+        elif choice == "4":
+            newDeadline = input("Nowy termin (dd-mm-yyyy): ")
+            try:
+                datetime.datetime.strptime(newDeadline, "%d-%m-%Y")
+                task['deadline'] = newDeadline
+            except ValueError:
+                print("Nieprawidłowy format daty! Edycja terminu anulowana.")
+
+        elif choice == "5":
+            print("\nWybierz nową kategorię:")
+            for key, value in category.items():
+                print(f"{key}: {value}")
+            newCategory = int(input("Nowa kategoria: "))
+            if newCategory in category:
+                task['category'] = newCategory
+            else:
+                print("Nieprawidłowa kategoria! Edycja anulowana.")
+
+        elif choice == "6":
+            task['description'] = input("Nowy opis: ")
+
+        elif choice == "0":
+            print("Anulowano edycję.")
+            return tasks
+
+        else:
+            print("Nieprawidłowy wybór! Edycja anulowana.")
+            return tasks
+
+        saveTasks(tasks)
+        print("Zadanie zostało zaktualizowane!")
+
+    except ValueError:
+        print("Proszę podać poprawny numer!")
+
+    return tasks
+
+
+def markDone(tasks):
+    if not tasks:
+        print("Brak zadań do oznaczenia!")
+        return tasks
+
+    showTasks(tasks)
+
+    try:
+        task_num = int(input("\nPodaj numer zadania do oznaczenia jako zakończone: ")) - 1
+        if 0 <= task_num < len(tasks):
+
+            if tasks[task_num]['status'] != 3:
+                tasks[task_num]['status'] = 3  # 3 = Finished
+                # Dodaj znaczek ✓
+                if " ✓" not in tasks[task_num]['name']:
+                    tasks[task_num]['name'] += " ✓"
+                saveTasks(tasks)
+                print("Zadanie zostało oznaczone jako zakończone!")
+            else:
+                print("To zadanie jest już oznaczone jako zakończone!")
+        else:
+            print("Nieprawidłowy numer zadania!")
+    except ValueError:
+        print("Proszę podać numer!")
+
+    return tasks
+
+
+
 def menu():
-    tasks = []
+    tasks = loadTasks()
 
     priority = {
         1: "UrgentImportant",
@@ -83,15 +258,18 @@ def menu():
 
         match userInput:
             case "0":
+                print("Zapisywanie zadań i zamykanie programu...")
+                saveTasks(tasks)
                 break
             case "1":
-                addTask(tasks)
+                tasks = addTask(tasks)
             case "2":
-                deleteTask(tasks)
+                tasks = deleteTask(tasks)
             case "3":
-                print("q")
+                tasks = editTask(tasks, priority, status, category)
             case "4":
-                print("q")
+                print("Zadanie oznaczanie jako ukonczone")
+
             case "5":
                 print("q")
             case "6":
@@ -99,4 +277,5 @@ def menu():
             case _:
                 print("Wpisz liczbę od 1 do 6.")
 
-menu()
+if __name__ == "__main__":
+    menu()
