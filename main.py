@@ -268,8 +268,8 @@ def menu():
             case "3":
                 tasks = editTask(tasks, priority, status, category)
             case "4":
-                print("Zadanie oznaczanie jako ukonczone")
-
+                markDone(tasks)
+                print("Zadanie oznaczone jako ukonczone")
             case "5":
                 print("q")
             case "6":
