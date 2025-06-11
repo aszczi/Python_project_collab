@@ -162,9 +162,9 @@ def editTask(tasks, priority, status, category):
                 print("Nieprawidłowy status. Edycja anulowana.")
 
         elif choice == "4":
-            newDeadline = input("Nowy termin (dd-mm-yyyy): ")
+            newDeadline = input("Nowy termin (dd.mm.yyyy): ")
             try:
-                datetime.datetime.strptime(newDeadline, "%d-%m-%Y")
+                datetime.datetime.strptime(newDeadline, "%d.%m.%Y")
                 task['deadline'] = newDeadline
             except ValueError:
                 print("Nieprawidłowy format daty. Edycja terminu anulowana.")
