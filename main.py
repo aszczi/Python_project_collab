@@ -1,5 +1,8 @@
 from datetime import datetime
 import os
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
+
 
 def saveTasks(tasks):
     with open('tasks.txt', 'w') as file:
@@ -12,7 +15,7 @@ def loadTasks():
     if os.path.exists('tasks.txt'):
         with open('tasks.txt', 'r') as file:
             for line in file:
-                if line.strip():  
+                if line.strip():  # Pomijanie pustych linii
                     task_data = line.strip().split('|')
                     task = {
                         "name": task_data[0],
@@ -38,7 +41,7 @@ def addTask(tasks):
             print("Niepoprawny priorytet. Spróbuj ponownie, wpisz liczbę od 1 do 4:")
     while True:
         try:
-            addStatus = int(input("Select task status: \n 1: Do zrobienia \n 2: W trakcie\n 3: Ukończone\n"))
+            addStatus = int(input("Podaj status zadania: \n 1: Do zrobienia \n 2: W trakcie\n 3: Ukończone\n"))
             if addStatus in [1, 2, 3]:
                 break
             else:
@@ -87,7 +90,7 @@ def addTask(tasks):
 
 def deleteTask(tasks):
     if not tasks:
-        print("Brak zadań do usunięcia!")
+        print("Brak zadań do usunięcia.")
         return tasks
 
     print("\nLista zadań:")
@@ -99,17 +102,17 @@ def deleteTask(tasks):
         if 0 <= task_num < len(tasks):
             del tasks[task_num]
             saveTasks(tasks)
-            print("Zadanie zostało usunięte!")
+            print("Zadanie zostało usunięte.")
         else:
-            print("Nieprawidłowy numer zadania!")
+            print("Nieprawidłowy numer zadania.")
     except ValueError:
-        print("Proszę podać numer!")
+        print("Proszę podać numer.")
 
     return tasks
 
 def editTask(tasks, priority, status, category):
     if not tasks:
-        print("Brak zadań do edycji!")
+        print("Brak zadań do edycji.")
         return tasks
 
     print("\nLista zadań:")
@@ -119,7 +122,7 @@ def editTask(tasks, priority, status, category):
     try:
         taskNum = int(input("\nPodaj numer zadania do edycji: ")) - 1
         if not (0 <= taskNum < len(tasks)):
-            print("Nieprawidłowy numer zadania!")
+            print("Nieprawidłowy numer zadania.")
             return tasks
 
         task = tasks[taskNum]
@@ -146,7 +149,7 @@ def editTask(tasks, priority, status, category):
             if newPriority in priority:
                 task['priority'] = newPriority
             else:
-                print("Nieprawidłowy priorytet! Edycja anulowana.")
+                print("Nieprawidłowy priorytet. Edycja anulowana.")
 
         elif choice == "3":
             print("\nWybierz nowy status:")
@@ -156,7 +159,7 @@ def editTask(tasks, priority, status, category):
             if newStatus in status:
                 task['status'] = newStatus
             else:
-                print("Nieprawidłowy status! Edycja anulowana.")
+                print("Nieprawidłowy status. Edycja anulowana.")
 
         elif choice == "4":
             newDeadline = input("Nowy termin (dd-mm-yyyy): ")
@@ -164,7 +167,7 @@ def editTask(tasks, priority, status, category):
                 datetime.datetime.strptime(newDeadline, "%d-%m-%Y")
                 task['deadline'] = newDeadline
             except ValueError:
-                print("Nieprawidłowy format daty! Edycja terminu anulowana.")
+                print("Nieprawidłowy format daty. Edycja terminu anulowana.")
 
         elif choice == "5":
             print("\nWybierz nową kategorię:")
@@ -174,7 +177,7 @@ def editTask(tasks, priority, status, category):
             if newCategory in category:
                 task['category'] = newCategory
             else:
-                print("Nieprawidłowa kategoria! Edycja anulowana.")
+                print("Nieprawidłowa kategoria. Edycja anulowana.")
 
         elif choice == "6":
             task['description'] = input("Nowy opis: ")
@@ -184,46 +187,48 @@ def editTask(tasks, priority, status, category):
             return tasks
 
         else:
-            print("Nieprawidłowy wybór! Edycja anulowana.")
+            print("Nieprawidłowy wybór. Edycja anulowana.")
             return tasks
 
         saveTasks(tasks)
-        print("Zadanie zostało zaktualizowane!")
+        print("Zadanie zostało zaktualizowane.")
 
     except ValueError:
-        print("Proszę podać poprawny numer!")
+        print("Proszę podać poprawny numer.")
 
     return tasks
 
 def markDone(tasks, priority, status, category):
     if not tasks:
-        print("Brak zadań do oznaczenia!")
+        print("Brak zadań do oznaczenia jako zakończone.")
         return tasks
 
-    showTasks(tasks, priority, status, category)
+    print("\nLista zadań:")
+    for i, task in enumerate(tasks, 1):
+        status_symbol = "✓" if task['status'] == 3 else ""
+        print(f"{i}. {task['name']} {status_symbol} (Status: {status.get(task['status'], 'Unknown')}, Termin: {task['deadline']})")
 
     try:
-        task_num = int(input("\nPodaj numer zadania do oznaczenia jako zakończone: ")) - 1
-        if 0 <= task_num < len(tasks):
+        taskNum = int(input("\nPodaj numer zadania do oznaczenia jako zakończone: ")) - 1
+        if not (0 <= taskNum < len(tasks)):
+            print("Nieprawidłowy numer zadania.")
+            return tasks
 
-            if tasks[task_num]['status'] != 3:
-                tasks[task_num]['status'] = 3  
-                if " ✓" not in tasks[task_num]['name']:
-                    tasks[task_num]['name'] += " ✓"
-                saveTasks(tasks)
-                print("Zadanie zostało oznaczone jako zakończone!")
-            else:
-                print("To zadanie jest już oznaczone jako zakończone!")
+        if tasks[taskNum]['status'] == 3:
+            print("To zadanie jest oznaczone jako zakończone.")
         else:
-            print("Nieprawidłowy numer zadania!")
+            tasks[taskNum]['status'] = 3
+            saveTasks(tasks)
+            print(f"Zadanie \"{tasks[taskNum]['name']}\" zostało oznaczone jako zakończone.")
+
     except ValueError:
-        print("Proszę podać numer!")
+        print("Proszę podać poprawny numer.")
 
     return tasks
 
 def taskInfo(tasks, priority, status, category):
     if not tasks:
-        print("Brak zadań do sprawdzenia!")
+        print("Brak zadań do sprawdzenia.")
         return tasks
 
     print("\nO którym zadaniu chcesz wyświetlić pełne informacje:")
@@ -233,12 +238,12 @@ def taskInfo(tasks, priority, status, category):
     try:
         taskNum = int(input("\nPodaj numer zadania do wyświetlenia informacji: ")) - 1
         if not (0 <= taskNum < len(tasks)):
-            print("Nieprawidłowy numer zadania!")
+            print("Nieprawidłowy numer zadania.")
             return tasks
 
         task = tasks[taskNum]
 
-        print("\n--- Szczegóły zadania ---")
+        print("----------------------------------------------------")
         print(f"Nazwa: {task['name']}")
         print(f"Opis: {task['description']}")
         print(f"Priorytet: {priority.get(task['priority'], 'Unknown')}")
@@ -247,31 +252,58 @@ def taskInfo(tasks, priority, status, category):
         print(f"Termin wykonania: {task['deadline']}")
 
     except ValueError:
-        print("Proszę podać poprawny numer!")
+        print("Proszę podać poprawny numer.")
 
     return tasks
 
 def showTasks(tasks, priority, status, category):
     print("\nLista zadań:")
     for i, task in enumerate(tasks, 1):
-        status_symbol = " ✓" if task['status'] == 3 else "" 
-        print(f"{i}. {task['name']} (Status: {status.get(task['status'], 'Unknown')}, Termin: {task['deadline']})")
+        status_symbol = "✓" if task['status'] == 3 else ""
+        print(f"{i}. {task['name']} {status_symbol} (Status: {status.get(task['status'], 'Unknown')}, Termin: {task['deadline']})")
+
+def plot_counts(tasks, key, mapping, title):
+    counts = {}
+    for t in tasks:
+        k = t[key]
+        counts[k] = counts.get(k, 0) + 1
+
+    labels = [mapping[k] for k in sorted(counts)]
+    values = [counts[k] for k in sorted(counts)]
+
+    fig, ax = plt.subplots()
+    ax.bar(labels, values)
+    ax.set_title(title)
+    ax.set_ylabel('Liczba zadań')
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))  
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+def plot_status(tasks, status):
+    plot_counts(tasks, 'status', status, 'Zadania według stanu')
+
+def plot_priority(tasks, priority):
+    plot_counts(tasks, 'priority', priority, 'Zadania według priorytetu')
+
+def plot_category(tasks, category):
+    plot_counts(tasks, 'category', category, 'Zadania według kategorii')
 
 
 def menu():
     tasks = loadTasks()
 
     priority = {
-        1: "UrgentImportant",
-        2: "NotUrgentImportant",
-        3: "UrgentNotImportant",
-        4: "NotUrgentNotImportant",
+        1: "Ważne i Pilne",
+        2: "Ważne i niepilne",
+        3: "Pilne, nie tak ważne",
+        4: "Nie tak ważne i niepilne",
     }
 
     status = {
-        1: "ToDo",
-        2: "InProgress",
-        3: "Finished",
+        1: "Do zrobienia",
+        2: "W trakcie",
+        3: "Ukończone",
     }
 
     category = {
@@ -282,13 +314,14 @@ def menu():
 
     while True:
         print("----------------------------------------------------")
-        print("Wciśnij 0 aby dodać zakończyć.")
+        print("Wciśnij 0 aby zakończyć działanie aplikacji.")
         print("Wciśnij 1 aby dodać zadanie.")
         print("Wciśnij 2 aby usunąć zadanie.")
         print("Wciśnij 3 aby edytować zadanie.")
         print("Wciśnij 4 aby oznaczyć zadanie jako zakończone.")
         print("Wciśnij 5 aby wyświetlić informację o zadaniu.")
         print("Wciśnij 6 aby wyświetlić listę zadań ze szczegółami.")
+        print("Wciśnij 7 aby wyświetlić wykresy dotyczące zadań.")
         print("----------------------------------------------------")
 
         userInput = input()
@@ -305,14 +338,17 @@ def menu():
             case "3":
                 tasks = editTask(tasks, priority, status, category)
             case "4":
-                markDone(tasks, priority, status, category)
-                print("Zadanie oznaczone jako ukonczone")
+                tasks = markDone(tasks, priority, status, category)
             case "5":
                 taskInfo(tasks, priority, status, category)
             case "6":
                 showTasks(tasks, priority, status, category)
+            case "7":
+                plot_status(tasks, status)
+                plot_priority(tasks, priority)
+                plot_category(tasks, category)
             case _:
-                print("Wpisz liczbę od 1 do 6.")
+                print("Wpisz liczbę od 1 do 7.")
 
 if __name__ == "__main__":
     menu()
