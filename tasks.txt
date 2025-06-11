@@ -1,6 +1,6 @@
 Zakończyć raport|1|1|15.06.2025|1|Przygotować i wysłać raport kwartalny do zarządu.
 Opłacić rachunki|2|1|20.06.2025|2|Zapłacić rachunki za prąd i internet.
 Zakupić prezent|3|2|10.06.2025|3|Kup prezent urodzinowy dla przyjaciółki.
-Spotkanie z klientem|1|2|30.06.2025|1|Omówić szczegóły nowego projektu z klientem X.
+Spotkanie z klientem|1|2|30.06.2025|1|Omówić szczegóły nowego projektu z klientem.
 Przeczytać książkę|4|1|25.12.2025|2|Przeczytać książkę 'Cień wiatru'.
 Zgłoszenie urlopu|2|3|05.06.2025|1|Wysłanie wniosku urlopowego.
