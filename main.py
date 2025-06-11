@@ -12,7 +12,7 @@ def loadTasks():
     if os.path.exists('tasks.txt'):
         with open('tasks.txt', 'r') as file:
             for line in file:
-                if line.strip():  # Pomijanie pustych linii
+                if line.strip():  
                     task_data = line.strip().split('|')
                     task = {
                         "name": task_data[0],
@@ -207,8 +207,7 @@ def markDone(tasks, priority, status, category):
         if 0 <= task_num < len(tasks):
 
             if tasks[task_num]['status'] != 3:
-                tasks[task_num]['status'] = 3  # 3 = Finished
-                # Dodaj znaczek ✓
+                tasks[task_num]['status'] = 3  
                 if " ✓" not in tasks[task_num]['name']:
                     tasks[task_num]['name'] += " ✓"
                 saveTasks(tasks)
@@ -255,7 +254,7 @@ def taskInfo(tasks, priority, status, category):
 def showTasks(tasks, priority, status, category):
     print("\nLista zadań:")
     for i, task in enumerate(tasks, 1):
-        status_symbol = " ✓" if task['status'] == 3 else ""  # ✓ jeśli zadanie ukończone
+        status_symbol = " ✓" if task['status'] == 3 else "" 
         print(f"{i}. {task['name']} (Status: {status.get(task['status'], 'Unknown')}, Termin: {task['deadline']})")
 
 
