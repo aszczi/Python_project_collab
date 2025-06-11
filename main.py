@@ -15,7 +15,7 @@ def loadTasks():
     if os.path.exists('tasks.txt'):
         with open('tasks.txt', 'r') as file:
             for line in file:
-                if line.strip():  # Pomijanie pustych linii
+                if line.strip(): 
                     task_data = line.strip().split('|')
                     task = {
                         "name": task_data[0],
